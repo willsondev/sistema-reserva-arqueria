@@ -323,6 +323,16 @@
                         "BearerAuth": []
                     }
                 ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -372,22 +382,19 @@
                         "BearerAuth": []
                     }
                 ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "Clase eliminada correctamente",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "description": "Mensaje de éxito"
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        "description": "Clase eliminada correctamente"
                     },
                     "404": {
                         "description": "Clase no encontrada",
@@ -415,52 +422,48 @@
                 "type": "object",
                 "properties": {
                     "name": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Nombre completo del usuario"
                     },
                     "email": {
                         "type": "string",
-                        "format": "email"
+                        "description": "Correo electrónico del usuario"
                     },
                     "password": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Contraseña del usuario"
                     },
                     "role": {
                         "type": "string",
-                        "enum": [
-                            "user",
-                            "admin"
-                        ]
+                        "description": "Rol del usuario"
                     }
-                },
-                "required": [
-                    "name",
-                    "email",
-                    "password",
-                    "role"
-                ]
+                }
             },
             "Class": {
                 "type": "object",
                 "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "ID de la clase"
+                    },
                     "title": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Título de la clase"
                     },
                     "description": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Descripción de la clase"
                     },
                     "dateTime": {
                         "type": "string",
-                        "format": "date-time"
+                        "format": "date-time",
+                        "description": "Fecha y hora de la clase"
                     },
                     "maxReservations": {
-                        "type": "integer"
+                        "type": "integer",
+                        "description": "Número máximo de reservas"
                     }
-                },
-                "required": [
-                    "title",
-                    "dateTime",
-                    "maxReservations"
-                ]
+                }
             }
         },
         "securitySchemes": {
