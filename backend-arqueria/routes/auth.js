@@ -6,6 +6,14 @@ const User = require('../models/User');
 router.post('/register', async (req, res) => {
     try {
         const { name, email, password, role } = req.body;
+
+        // Verificar si el correo electrónico ya existe
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ error: 'User with this email already exists' });
+        }
+
+        // Si el correo electrónico no existe, crear un nuevo usuario
         const user = new User({ name, email, password, role });
         await user.save();
         const token = await user.generateToken();
