@@ -414,6 +414,140 @@
                     }
                 }
             }
+        },
+        "/api/classes/{id}/reserve": {
+            "post": {
+                "summary": "Reservar una clase",
+                "tags": [
+                    "Classes"
+                ],
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "userId": {
+                                        "type": "string"
+                                    }
+                                },
+                                "example": {
+                                    
+                                        "name": "manchas",
+                                        "email": "manchas@example.com"
+                                    
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Reserva realizada con éxito"
+                    },
+                    "400": {
+                        "description": "Error en la reserva",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "Mensaje de error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Clase ya reservada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "Mensaje de error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/reservations": {
+            "get": {
+                "summary": "Obtener historial de reservas",
+                "tags": [
+                    "Reservations"
+                ],
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Historial de reservas obtenido con éxito",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "classId": {
+                                                "type": "string",
+                                                "description": "ID de la clase reservada"
+                                            },
+                                            "title": {
+                                                "type": "string",
+                                                "description": "Título de la clase"
+                                            },
+                                            "description": {
+                                                "type": "string",
+                                                "description": "Descripción de la clase"
+                                            },
+                                            "dateTime": {
+                                                "type": "string",
+                                                "format": "date-time",
+                                                "description": "Fecha y hora de la clase"
+                                            }
+                                        },
+                                        "example": {
+                                            "classId": "class123",
+                                            "title": "Clase de Yoga",
+                                            "description": "Una clase de yoga para principiantes",
+                                            "dateTime": "2024-09-02T10:00:00Z"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -422,46 +556,38 @@
                 "type": "object",
                 "properties": {
                     "name": {
-                        "type": "string",
-                        "description": "Nombre completo del usuario"
+                        "type": "string"
                     },
                     "email": {
-                        "type": "string",
-                        "description": "Correo electrónico del usuario"
+                        "type": "string"
                     },
                     "password": {
-                        "type": "string",
-                        "description": "Contraseña del usuario"
+                        "type": "string"
                     },
                     "role": {
                         "type": "string",
-                        "description": "Rol del usuario"
+                        "enum": [
+                            "user",
+                            "admin"
+                        ]
                     }
                 }
             },
             "Class": {
                 "type": "object",
                 "properties": {
-                    "id": {
-                        "type": "string",
-                        "description": "ID de la clase"
-                    },
                     "title": {
-                        "type": "string",
-                        "description": "Título de la clase"
+                        "type": "string"
                     },
                     "description": {
-                        "type": "string",
-                        "description": "Descripción de la clase"
+                        "type": "string"
                     },
                     "dateTime": {
                         "type": "string",
-                        "format": "date-time",
-                        "description": "Fecha y hora de la clase"
+                        "format": "date-time"
                     },
                     "maxReservations": {
-                        "type": "integer",
-                        "description": "Número máximo de reservas"
+                        "type": "integer"
                     }
                 }
             }
@@ -469,8 +595,7 @@
         "securitySchemes": {
             "BearerAuth": {
                 "type": "http",
-                "scheme": "bearer",
-                "bearerFormat": "JWT"
+                "scheme": "bearer"
             }
         }
     }
