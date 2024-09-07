@@ -40,7 +40,9 @@ export default {
         });
         const data = await response.json();
         if (response.ok) {
-          alert('Registro exitoso');
+          // Guarda el token en el localStorage si es necesario
+          localStorage.setItem('token', data.token);
+          // Redirige a HomeView después del registro exitoso
           this.$router.push({ name: 'login' });
         } else {
           alert(data.error);

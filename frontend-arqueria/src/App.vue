@@ -1,42 +1,94 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
+import { useRoute } from 'vue-router';
+import Header from './components/Header.vue';
+import Footer from './components/Footer.vue';
+import MainView from './components/MainView.vue';
+import { ArrowDownIcon } from '@heroicons/vue/24/solid';
+
+// Estado de visibilidad del botón
+const isButtonVisible = ref(true);
+
+// Función para ocultar el botón cuando se hace scroll
+const handleScroll = () => {
+  isButtonVisible.value = window.scrollY < 200; // Ajusta el valor según sea necesario
+};
+
+// Función para ocultar el botón después de hacer clic
+const handleClick = () => {
+  isButtonVisible.value = false;
+};
+
+// Añadir y quitar el manejador de eventos de scroll
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll);
+});
+
+// Obtener la ruta actual
+const route = useRoute();
+
+// Computar si ocultar MainView y Footer
+const hideMainViewAndFooter = computed(() => {
+  return ['/login', '/register', '/classes','/reservations','/admin'].includes(route.path);
+});
+
+// Observar cambios en la ruta para actualizar el estado
+watch(route, () => {
+  // Actualizar el estado de hideMainViewAndFooter al cambiar la ruta
+  // Esto asegura que la lógica se ejecute correctamente
+  hideMainViewAndFooter.value = ['/login', '/register', '/classes','/reservations','/admin'].includes(route.path);
+});
 </script>
 
 <template>
-  <header class="flex flex-col items-center p-4 max-h-screen">
-    <img alt="Vue logo" class="block mb-8" src="@/assets/logo.svg" width="125" height="125" />
+  <div>
+    <!-- Header siempre se renderiza -->
+    <Header />
 
-    <div class="flex flex-col items-center text-center">
-      <nav class="w-full text-sm mt-8 flex flex-wrap justify-center space-x-4">
-        <RouterLink to="/" class="nav-link">Home</RouterLink>
-        <RouterLink to="/classes" class="nav-link">Classes</RouterLink>
-        <RouterLink to="/reservations" class="nav-link">Reservations</RouterLink>
-        <RouterLink to="/admin" class="nav-link">Admin</RouterLink>
-        <RouterLink to="/login" class="nav-link">Login</RouterLink>
-        <RouterLink to="/register" class="nav-link">Register</RouterLink>
-      </nav>
-    </div>
-  </header>
+    <!-- Vista principal -->
+    <router-view />
 
-  <main class="flex-1">
-    <RouterView />
-  </main>
+    <!-- MainView y Footer solo se renderizan si no estamos en /login o /register -->
+    <MainView v-if="!hideMainViewAndFooter" />
+    <Footer v-if="!hideMainViewAndFooter" />
+
+    <!-- Botón para desplazarse hacia abajo -->
+    <transition name="fade-slide">
+      <div v-if="isButtonVisible && !hideMainViewAndFooter" class="fixed bottom-8 right-8 flex justify-center">
+        <a href="#footer" @click="handleClick">
+          <button class="bg-white hover:bg-green-600 text-black font-semibold p-2 rounded-full shadow-lg transition ease-in-out duration-300 flex items-center justify-center">
+            <ArrowDownIcon class="h-6 w-6 text-black" />
+          </button>
+        </a>
+      </div>
+    </transition>
+  </div>
 </template>
 
 <style scoped>
-.nav-link {
-  @apply inline-block px-4 py-2 border-l border-gray-300 text-gray-700 no-underline;
+/* Animación para el botón */
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.fade-slide-enter,
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(10px);
 }
 
-.nav-link:first-of-type {
-  @apply border-0;
+/* Animación para el footer */
+.fade-slide-footer-enter-active,
+.fade-slide-footer-leave-active {
+  transition: opacity 0.6s ease, transform 0.6s ease;
 }
-
-.nav-link.router-link-exact-active {
-  @apply text-blue-500;
-}
-
-.nav-link.router-link-exact-active:hover {
-  @apply bg-transparent;
+.fade-slide-footer-enter,
+.fade-slide-footer-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
 }
 </style>
