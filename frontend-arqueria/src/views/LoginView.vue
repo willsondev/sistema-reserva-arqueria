@@ -16,49 +16,44 @@
   </div>
 </template>
 
-<script>
-import { ref } from 'vue';
+<script setup>
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import store from '../store/index'; // Verifica que la ruta sea correcta
+import { useStore } from 'vuex';
 
-export default {
-  setup() {
-    const router = useRouter();
-    const email = ref('');
-    const password = ref('');
-    const error = ref(null);
+const store = useStore();
+const router = useRouter();
 
-    async function login() {
-      try {
-        const response = await fetch('http://localhost:5000/api/auth/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ email: email.value, password: password.value })
-        });
-        const data = await response.json();
-        if (response.ok) {
-          store.commit('SET_TOKEN', data.token);
-          store.commit('SET_AUTHENTICATED', true);
-          store.commit('SET_ADMIN', data.isAdmin !== undefined ? data.isAdmin : false); // Maneja la ausencia de `isAdmin`
-          router.push({ name: 'home' });
-          alert('Logged in successfully!');
-        } else {
-          error.value = data.error || 'An error occurred';
-        }
-      } catch (error) {
-        console.error('Error al iniciar sesión:', error);
-        error.value = 'Error al iniciar sesión';
-      }
+const email = ref('');
+const password = ref('');
+const error = ref(null);
+
+// Computed properties for Vuex store
+const isAuthenticated = computed(() => store.getters.isAuthenticated);
+const isAdmin = computed(() => store.getters.isAdmin);
+
+const login = async () => {
+  try {
+    const response = await fetch('http://localhost:5000/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ email: email.value, password: password.value })
+    });
+    const data = await response.json();
+    if (response.ok) {
+      store.commit('SET_TOKEN', data.token);
+      store.commit('SET_AUTHENTICATED', true);
+      store.commit('SET_ADMIN', data.isAdmin !== undefined ? data.isAdmin : false);
+      router.push({ name: 'home' });
+      alert('¡Sesión iniciada con éxito!');
+    } else {
+      error.value = data.error || 'Ocurrió un error';
     }
-
-    return {
-      email,
-      password,
-      error,
-      login,
-    };
-  },
+  } catch (error) {
+    console.error('Error al iniciar sesión:', error);
+    error.value = 'Error al iniciar sesión';
+  }
 };
 </script>

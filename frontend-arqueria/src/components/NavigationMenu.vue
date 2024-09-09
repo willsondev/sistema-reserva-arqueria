@@ -34,7 +34,7 @@ const isAuthenticated = computed(() => store.getters.isAuthenticated);
 const isAdmin = computed(() => store.getters.isAdmin);
 
 const logout = () => {
-  store.dispatch('logout'); // Cambiado a action en lugar de mutación directa
+  store.commit('LOGOUT'); // Usar la mutación LOGOUT
   router.push('/login');
 };
 </script>

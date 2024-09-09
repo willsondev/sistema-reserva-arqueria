@@ -1,4 +1,5 @@
 import { createStore } from 'vuex';
+import axios from 'axios'; // Asegúrate de que axios está instalado
 
 const store = createStore({
   state: {
@@ -7,7 +8,9 @@ const store = createStore({
     reservations: [],
     isAuthenticated: !!localStorage.getItem('token'),
     token: localStorage.getItem('token') || null,
-    isAdmin: localStorage.getItem('isAdmin') === 'true', // Estado de admin desde localStorage
+    isAdmin: localStorage.getItem('isAdmin') === 'true',
+    isLoadingClasses: false, // Estado para la carga de clases
+    isLoadingReservations: false, // Estado para la carga de reservas
   },
   mutations: {
     SET_USER(state, user) {
@@ -16,9 +19,11 @@ const store = createStore({
     },
     SET_CLASSES(state, classes) {
       state.classes = classes;
+      state.isLoadingClasses = false; // Actualiza el estado de carga
     },
     SET_RESERVATIONS(state, reservations) {
       state.reservations = reservations;
+      state.isLoadingReservations = false; // Actualiza el estado de carga
     },
     SET_AUTHENTICATED(state, isAuthenticated) {
       state.isAuthenticated = isAuthenticated;
@@ -29,14 +34,22 @@ const store = createStore({
     },
     SET_ADMIN(state, isAdmin) {
       state.isAdmin = isAdmin;
-      localStorage.setItem('isAdmin', isAdmin); // Guardar estado de admin en localStorage
+      localStorage.setItem('isAdmin', isAdmin.toString()); // Asegúrate de que isAdmin sea una cadena
     },
     LOGOUT(state) {
       state.user = null;
       state.isAuthenticated = false;
       state.token = null;
       state.isAdmin = false;
-      localStorage.clear();
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+      localStorage.removeItem('isAdmin');
+    },
+    SET_LOADING_CLASSES(state, isLoading) {
+      state.isLoadingClasses = isLoading;
+    },
+    SET_LOADING_RESERVATIONS(state, isLoading) {
+      state.isLoadingReservations = isLoading;
     },
   },
   actions: {
@@ -46,9 +59,10 @@ const store = createStore({
         commit('SET_TOKEN', response.data.token);
         commit('SET_USER', response.data.user);
         commit('SET_AUTHENTICATED', true);
-        commit('SET_ADMIN', response.data.user.isAdmin); // Asegúrate de que `isAdmin` esté en `user`
+        commit('SET_ADMIN', response.data.user.isAdmin);
       } catch (error) {
         console.error('Error registering user:', error);
+        // Manejar el error, por ejemplo, mostrar un mensaje de error al usuario
       }
     },
     async login({ commit }, credentials) {
@@ -57,33 +71,57 @@ const store = createStore({
         commit('SET_TOKEN', response.data.token);
         commit('SET_USER', response.data.user);
         commit('SET_AUTHENTICATED', true);
-        commit('SET_ADMIN', response.data.user.isAdmin); // Asegúrate de que `isAdmin` esté en `user`
+        commit('SET_ADMIN', response.data.user.isAdmin);
       } catch (error) {
         console.error('Error logging in:', error);
+        // Manejar el error, por ejemplo, mostrar un mensaje de error al usuario
       }
     },
     async fetchClasses({ commit }) {
+  commit('SET_LOADING_CLASSES', true); // Establece el estado de carga
+  try {
+    const response = await axios.get('/api/classes');
+    commit('SET_CLASSES', response.data); // Corrección: acceder a la data directamente
+  } catch (error) {
+    console.error('Error fetching classes:', error);
+    // Manejar el error, por ejemplo, mostrar un mensaje de error al usuario
+  } finally {
+    commit('SET_LOADING_CLASSES', false); // Actualiza el estado de carga
+  }
+},
+    async fetchReservations({ commit, getters }) {
+      commit('SET_LOADING_RESERVATIONS', true); // Establece el estado de carga
       try {
-        const response = await axios.get('/api/classes');
-        commit('SET_CLASSES', response.data.classes);
-      } catch (error) {
-        console.error('Error fetching classes:', error);
-      }
-    },
-    async fetchReservations({ commit }) {
-      try {
-        const response = await axios.get('/api/users/reservations');
+        const response = await axios.get('/api/users/reservations', {
+          headers: {
+            'Authorization': `Bearer ${getters.token}`,
+          },
+        });
         commit('SET_RESERVATIONS', response.data);
       } catch (error) {
         console.error('Error fetching reservations:', error);
+        // Manejar el error, por ejemplo, mostrar un mensaje de error al usuario
+      } finally {
+        commit('SET_LOADING_RESERVATIONS', false); // Actualiza el estado de carga
       }
     },
-    async reserveClass({ dispatch }, { classId, userId }) {
+    async reserveClass({ state, dispatch }, classId) {
       try {
-        await axios.post(`/api/classes/${classId}/reserve`, { userId });
+        if (!state.user) {
+          console.error('No hay usuario autenticado');
+          return;
+        }
+
+        const userId = state.user.id;
+        await axios.post(`/api/classes/${classId}/reserve`, { userId }, {
+          headers: {
+            'Authorization': `Bearer ${state.token}`,
+          },
+        });
         dispatch('fetchReservations');
       } catch (error) {
-        console.error('Error reserving class:', error);
+        console.error('Error reservando clase:', error);
+        // Manejar el error, por ejemplo, mostrar un mensaje de error al usuario
       }
     },
     logout({ commit }) {
@@ -96,6 +134,15 @@ const store = createStore({
     },
     isAdmin(state) {
       return state.isAdmin;
+    },
+    token(state) {
+      return state.token;
+    },
+    isLoadingClasses(state) {
+      return state.isLoadingClasses;
+    },
+    isLoadingReservations(state) {
+      return state.isLoadingReservations;
     },
   },
 });

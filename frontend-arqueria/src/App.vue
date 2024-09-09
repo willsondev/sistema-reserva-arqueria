@@ -1,5 +1,30 @@
+<template>
+  <div>
+    <!-- Header siempre se renderiza -->
+    <Header />
+
+    <!-- Vista principal -->
+    <router-view />
+
+    <!-- MainView y Footer solo se renderizan si no estamos en /login o /register -->
+    <MainView v-if="!hideMainViewAndFooter" />
+    <Footer v-if="!hideMainViewAndFooter" />
+
+    <!-- Botón para desplazarse hacia abajo -->
+    <transition name="fade-slide">
+      <div v-if="isButtonVisible && !hideMainViewAndFooter" class="fixed bottom-8 right-8 flex justify-center">
+        <a href="#footer" @click="handleClick">
+          <button class="bg-white hover:bg-green-600 text-black font-semibold p-2 rounded-full shadow-lg transition ease-in-out duration-300 flex items-center justify-center">
+            <ArrowDownIcon class="h-6 w-6 text-black" />
+          </button>
+        </a>
+      </div>
+    </transition>
+  </div>
+</template>
+
 <script setup>
-import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import Header from './components/Header.vue';
 import Footer from './components/Footer.vue';
@@ -33,41 +58,9 @@ const route = useRoute();
 
 // Computar si ocultar MainView y Footer
 const hideMainViewAndFooter = computed(() => {
-  return ['/login', '/register', '/classes','/reservations','/admin'].includes(route.path);
-});
-
-// Observar cambios en la ruta para actualizar el estado
-watch(route, () => {
-  // Actualizar el estado de hideMainViewAndFooter al cambiar la ruta
-  // Esto asegura que la lógica se ejecute correctamente
-  hideMainViewAndFooter.value = ['/login', '/register', '/classes','/reservations','/admin'].includes(route.path);
+  return ['/login', '/register', '/classes', '/reservations', '/admin'].includes(route.path);
 });
 </script>
-
-<template>
-  <div>
-    <!-- Header siempre se renderiza -->
-    <Header />
-
-    <!-- Vista principal -->
-    <router-view />
-
-    <!-- MainView y Footer solo se renderizan si no estamos en /login o /register -->
-    <MainView v-if="!hideMainViewAndFooter" />
-    <Footer v-if="!hideMainViewAndFooter" />
-
-    <!-- Botón para desplazarse hacia abajo -->
-    <transition name="fade-slide">
-      <div v-if="isButtonVisible && !hideMainViewAndFooter" class="fixed bottom-8 right-8 flex justify-center">
-        <a href="#footer" @click="handleClick">
-          <button class="bg-white hover:bg-green-600 text-black font-semibold p-2 rounded-full shadow-lg transition ease-in-out duration-300 flex items-center justify-center">
-            <ArrowDownIcon class="h-6 w-6 text-black" />
-          </button>
-        </a>
-      </div>
-    </transition>
-  </div>
-</template>
 
 <style scoped>
 /* Animación para el botón */
