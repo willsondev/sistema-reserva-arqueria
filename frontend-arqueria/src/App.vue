@@ -2,9 +2,16 @@
   <div>
     <!-- Header siempre se renderiza -->
     <Header />
-
+      <!-- Encabezado de "Clases de Arquería" solo se muestra en rutas permitidas -->
+    <div v-if="!hideMainViewAndFooter" class="container mx-auto text-center mt-8 px-4">
+      <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight text-gray-900 bg-gradient-to-r from-green-400 to-blue-500 text-transparent bg-clip-text">
+        Clases de Arquería
+      </h1>
+    </div>
+ 
     <!-- Vista principal -->
-    <router-view />
+    <router-view class="mt-5" />
+   
 
     <!-- MainView y Footer solo se renderizan si no estamos en /login o /register -->
     <MainView v-if="!hideMainViewAndFooter" />
@@ -12,12 +19,10 @@
 
     <!-- Botón para desplazarse hacia abajo -->
     <transition name="fade-slide">
-      <div v-if="isButtonVisible && !hideMainViewAndFooter" class="fixed bottom-8 right-8 flex justify-center">
-        <a href="#footer" @click="handleClick">
-          <button class="bg-white hover:bg-green-600 text-black font-semibold p-2 rounded-full shadow-lg transition ease-in-out duration-300 flex items-center justify-center">
-            <ArrowDownIcon class="h-6 w-6 text-black" />
-          </button>
-        </a>
+      <div v-if="isButtonVisible && !hideMainViewAndFooter" class="fixed bottom-8 left-1/2 transform -translate-x-1/2 flex justify-center">
+        <button @click="scrollToFooter" class="bg-white hover:bg-green-600 text-black font-semibold p-3 rounded-full shadow-lg transition ease-in-out duration-300 flex items-center justify-center">
+          <ArrowDownIcon class="h-6 w-6 text-black" />
+        </button>
       </div>
     </transition>
   </div>
@@ -33,6 +38,14 @@ import { ArrowDownIcon } from '@heroicons/vue/24/solid';
 
 // Estado de visibilidad del botón
 const isButtonVisible = ref(true);
+
+// Función para desplazar hacia el footer
+const scrollToFooter = () => {
+  const footerElement = document.getElementById('footer');
+  if (footerElement) {
+    footerElement.scrollIntoView({ behavior: 'smooth' });
+  }
+};
 
 // Función para ocultar el botón cuando se hace scroll
 const handleScroll = () => {
@@ -58,7 +71,7 @@ const route = useRoute();
 
 // Computar si ocultar MainView y Footer
 const hideMainViewAndFooter = computed(() => {
-  return ['/login', '/register', '/classes', '/reservations', '/admin'].includes(route.path);
+  return ['/login', '/register', '/classes', '/reservations', '/admin','/instructores', '/futuros-instructores'].includes(route.path);
 });
 </script>
 

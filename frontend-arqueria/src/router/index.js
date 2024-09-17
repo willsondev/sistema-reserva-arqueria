@@ -5,51 +5,43 @@ import LoginView from '../views/LoginView.vue';
 import ClassView from '../views/ClassView.vue';
 import ReservationView from '../views/ReservationView.vue';
 import AdminPanel from '../views/AdminPanel.vue';
-import store from '../store/index'; // Importa tu store de Vuex
+import InstructoresView from '../views/InstructoresView.vue';
+import FuturosInstructoresView from '../views/FuturosInstructoresView.vue';
+import store from '../store/index';
 
 const routes = [
   { path: '/', name: 'home', component: HomeView },
-  { path: '/register', component: RegisterView },
+  { path: '/register', name: 'register', component: RegisterView },
   { path: '/login', name: 'login', component: LoginView },
-  { path: '/classes', component: ClassView }, // Ruta pública
-  {
-    path: '/reservations',
-    component: ReservationView,
-    meta: { requiresAuth: true }, // Protección de autenticación
-  },
-  {
-    path: '/admin',
-    component: AdminPanel,
-    meta: { requiresAuth: true, isAdmin: true }, // Marca la ruta como protegida y requiere rol de administrador
-  },
-  { path: '/logout', name: 'logout' }, // Ruta para cerrar sesión
+  { path: '/classes', name: 'classes', component: ClassView },
+  { path: '/reservations', name: 'reservations', component: ReservationView, meta: { requiresAuth: true } },
+  { path: '/admin', name: 'admin', component: AdminPanel, meta: { requiresAdmin: true } },
+  { path: '/instructores', name: 'instructores', component: InstructoresView },
+  { path: '/futuros-instructores', name: 'futuros-instructores', component: FuturosInstructoresView },
+  // Eliminado: { path: '/:pathMatch(.*)*', name: '404', component: NotFound },  
 ];
 
 const router = createRouter({
-  history: createWebHistory('/'),
+  history: createWebHistory(),
   routes,
 });
 
 router.beforeEach((to, from, next) => {
+  const isAuthenticated = store.getters.isAuthenticated;
+  const isAdmin = store.getters.isAdmin;
+
   if (to.name === 'logout') {
-    store.commit('LOGOUT'); // Llama a la mutación LOGOUT en el store
-    next('/login'); // Redirige a la página de inicio de sesión
-  } else if (to.meta.requiresAuth) {
-    if (store.getters.isAuthenticated) { // Usa el getter isAuthenticated del store
-      if (to.meta.isAdmin) {
-        if (store.getters.isAdmin) { // Usa el getter isAdmin del store
-          next(); // Permite el acceso si es administrador
-        } else {
-          next('/'); // Redirige a la página principal si no es administrador
-        }
-      } else {
-        next(); // Permite el acceso si está autenticado y no requiere rol de administrador
-      }
-    } else {
-      next('/login'); // Redirige a la página de inicio de sesión si no está autenticado
-    }
+    store.dispatch('logout').then(() => {
+      next('/login');
+    }).catch(() => {
+      next('/login');
+    });
+  } else if (to.meta.requiresAuth && !isAuthenticated) {
+    next('/login');
+  } else if (to.meta.requiresAdmin && (!isAuthenticated || !isAdmin)) {
+    next('/');
   } else {
-    next(); // Permite el acceso a rutas públicas
+    next();
   }
 });
 

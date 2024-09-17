@@ -1,29 +1,19 @@
 <template>
-  <header class="p-4 dark:text-gray-800 text-xl font-bold">
-    <div class="container flex justify-between h-16 mx-auto">
-      <NavigationMenu />
-    </div>
+  <header class=" ">
 
-      <div class="container mx-auto flex justify-center">
-    <h1 class="mb-4 text-4xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-6xl">Clases de Arqueria</h1>
+      <!-- Enlace del título Arqueria -->
+      
+
+      <!-- Menú de navegación (en el componente NavigationMenu) -->
+      <NavigationMenu class="" />
     
-  </div>
   </header>
-
-
-  
-
- 
-
-
-
 </template>
 
 <script setup>
 import NavigationMenu from './NavigationMenu.vue';
-
-
-
 </script>
 
-<style></style>
+<style scoped>
+/* No es necesario agregar estilos adicionales si solo usas TailwindCSS */
+</style>

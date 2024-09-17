@@ -10,8 +10,9 @@ export default defineConfig({
     vue(),
 
   ],
+   
   build: {
-    sourcemap: true // Asegúrate de que esto esté en true si quieres mapas de fuente
+    sourcemap: false,// Asegúrate de que esto esté en true si quieres mapas de fuente
   },
   // css: {
   //   postcss,

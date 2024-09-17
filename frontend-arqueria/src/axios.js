@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const instance = axios.create({
-  baseURL: 'http://localhost:5000', // URL base de la API
+  baseURL: 'https://backed-mongo.onrender.com', // Nueva URL base de la API
   headers: {
     'Content-Type': 'application/json',
   }

@@ -1,7 +1,7 @@
 <template>
   <div>
     <Card />
-    <Botones />
+    <Botones class="" />
   </div>
 </template>
 

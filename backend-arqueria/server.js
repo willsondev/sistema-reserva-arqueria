@@ -9,7 +9,7 @@ const swaggerDocument = require('./swagger.json'); // Importa el archivo JSON
 
 const authRoutes = require('./routes/auth');
 const classRoutes = require('./routes/classes');
-const userRoutes = require('./routes/users'); // Importa la ruta de usuarios
+
 const { auth, adminAuth } = require('./middleware/auth');
 
 const app = express(); // Inicializa 'app' antes de usarlo
@@ -32,7 +32,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument)); // Muev
 // Rutas
 app.use('/api/auth', authRoutes);
 app.use('/api/classes', classRoutes);
-app.use('/api/users', userRoutes); // Agrega la ruta de usuarios
+
 
 // Logging con winston
 const logger = winston.createLogger({
